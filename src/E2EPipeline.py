@@ -113,7 +113,10 @@ class E2EPipeline(Pipeline):
                                 index=df_stand.index,
                                 columns=df_stand.columns)
         data = pd.concat([data, df_stand], axis=1)
+        logger.info(f"1. before fe: {data.shape}")
 
+        # TODO: featuretool seems create different No. of features
+        # according to input data size
         # feature engineering 1
         es = ft.EntitySet(id='ft')
         fe_col = [col for col in self.values + [self.index_col]
@@ -134,6 +137,7 @@ class E2EPipeline(Pipeline):
              if col in features_matrix.columns],
             axis=1)
         data = data.merge(features_matrix, how='left', on=self.index_col)
+        logger.info(f"2. after fe1: {data.shape}")
 
         # feature engineering 2
         es = ft.EntitySet(id='ft')
@@ -160,6 +164,7 @@ class E2EPipeline(Pipeline):
              col in features_matrix.columns],
             axis=1)
         data = data.merge(features_matrix, how='left', on=self.index_col)
+        logger.info(f"3. after fe2: {data.shape}")
 
         # impute extreme values
         data.replace([np.inf, -np.inf], np.nan, inplace=True)
@@ -188,14 +193,14 @@ class E2EPipeline(Pipeline):
             df_X,
             df_y,
             test_size=0.1,
-            random_state=1,
+            random_state=config.SEED,
             shuffle=True,
             stratify=df_y)
         X_train, X_val, y_train, y_val = train_test_split(
             X,
             y,
             test_size=0.1,
-            random_state=1,
+            random_state=config.SEED,
             shuffle=True,
             stratify=y)
 
@@ -264,12 +269,10 @@ class E2EPipeline(Pipeline):
 
         nan_cols = [col for col in X.columns if "_nan" in col]
 
+        # impute the nan columns
         X = self.impute_encoded_col(X, nan_cols)
-
         X_train = self.impute_encoded_col(X_train, nan_cols)
-
         X_val = self.impute_encoded_col(X_val, nan_cols)
-
         X_test = self.impute_encoded_col(X_test, nan_cols)
 
         # drop useless columns by feature selection
@@ -381,6 +384,7 @@ class E2EPipeline(Pipeline):
         X = pd.concat(
             [X.drop(categorical, axis=1).reset_index(drop=True),
              cat_train], axis=1)
+        logger.info(f"4. after ohe: {X.shape}")
 
         X = X.replace(np.nan)
 
@@ -388,6 +392,7 @@ class E2EPipeline(Pipeline):
 
         X = self.impute_encoded_col(X, nan_cols)
         X.drop(config.useless, axis=1, inplace=True)
+        logger.info(f"5. before training: {X.shape}")
 
         # make inference
         # Use "hist" for constructing the trees, with early stopping enabled.
@@ -430,25 +435,14 @@ class E2EPipeline(Pipeline):
         return df_raw
 
 
-# test
 if __name__ == "__main__":
-
-    # df_raw = pd.read_excel(
-    #     ROOT / "data/Assessment.xlsx",
-    #     engine='openpyxl',
-    #     sheet_name=1)
-
-    # pipe = E2EPipeline()
-    # data = pipe.preprocess(df_raw)
-    # f1 = pipe.train(data)
-    # logger.info(f1)
 
     df_raw = pd.read_excel(
         ROOT / "data/Assessment.xlsx",
         engine='openpyxl',
         sheet_name=1)
 
-    test = df_raw.loc[:10, [col for col in df_raw.columns if col != "C_seg"]]
-
     pipe = E2EPipeline()
-    pipe.inference(test)
+    data = pipe.preprocess(df_raw)
+    f1 = pipe.train(data)
+    logger.info(f1)
