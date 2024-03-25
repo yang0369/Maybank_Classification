@@ -1,7 +1,10 @@
+import pickle
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Union, List
+from typing import List, Union
 
+import cupy as cp
 import featuretools as ft
 import numpy as np
 import pandas as pd
@@ -14,8 +17,7 @@ from sklearn.utils.class_weight import compute_sample_weight
 
 from src.config import config
 from src.util.logger import CustomLogger
-from abc import ABC, abstractmethod
-import pickle
+
 # show all columns/rows
 pd.options.display.max_rows = 10
 pd.options.display.max_columns = 20
@@ -305,6 +307,7 @@ class E2EPipeline(Pipeline):
 
         # Use "hist" for constructing the trees, with early stopping enabled.
         model = xgb.XGBClassifier(
+            device="cuda",
             tree_method=config.tree_method,
             objective=config.objective,
             n_estimators=config.n_estimators,
@@ -319,12 +322,14 @@ class E2EPipeline(Pipeline):
             subsample=config.subsample,
             colsample_bytree=config.colsample_bytree)
 
-        model.fit(X, y, verbose=True, sample_weight=sample_weights)
-
+        model.fit(cp.array(X),
+                  cp.array(y),
+                  verbose=True,
+                  sample_weight=sample_weights)
         model.save_model(model_dir / "xgboost.json")
 
         # predict on test set
-        prob = model.predict_proba(X_test)[:, 1]
+        prob = model.predict_proba(cp.array(X_test))[:, 1]
         preds = (prob > config.best_threshold).astype("int")
 
         return f1_score(y_test, preds)
@@ -368,8 +373,9 @@ class E2EPipeline(Pipeline):
             with open(path, "rb") as f:
                 enc = pickle.load(f)
             logger.info("successfully loaded the onehot encoder")
-        except:
-            raise TypeError("")
+        except FileNotFoundError:
+            logger.info(f"Please ensure there is encoder in the this path: \
+                        {config.model_dir}")
 
         # get cols requiring onehotencoding
         categorical = [col for col in (self.ordinal_cols + self.nominal_cols)

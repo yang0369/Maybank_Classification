@@ -26,4 +26,5 @@ def test_run_e2e_per_img_obj():
     pipe = E2EPipeline()
     preds = pipe.inference(X_test)
     f1 = f1_score(y_test, preds)
+    logger.info(f"f1 score is: {f1}")
     assert f1 >= 0.9
