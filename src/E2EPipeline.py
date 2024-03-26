@@ -158,7 +158,7 @@ class E2EPipeline(Pipeline):
                 "divide_numeric",
                 'multiply_numeric'
                 ],
-            max_depth=2,
+            max_depth=1,
             verbose=True)
         features_matrix.reset_index(inplace=True)
         features_matrix = features_matrix.drop(
@@ -175,12 +175,15 @@ class E2EPipeline(Pipeline):
 
     def train(self,
               data: pd.DataFrame,
-              model_dir: Union[str, Path] = config.model_dir) -> float:
+              model_dir: Union[str, Path] = config.model_dir,
+              if_GPU: bool = config.if_GPU) -> float:
         """train a model and save it
 
         Args:
             data (pd.DataFrame): dataset
-            model_dir (Union[str, Path], optional): model to be saved at. Defaults to config.model_dir.
+            model_dir (Union[str, Path], optional): model to be saved at.
+            Defaults to config.model_dir.
+            if_GPU (bool): if use GPU to train
 
         Returns:
             float: f1 score
@@ -307,7 +310,7 @@ class E2EPipeline(Pipeline):
 
         # Use "hist" for constructing the trees, with early stopping enabled.
         model = xgb.XGBClassifier(
-            device="cuda",
+            device="cuda" if if_GPU else "cpu",
             tree_method=config.tree_method,
             objective=config.objective,
             n_estimators=config.n_estimators,
@@ -322,14 +325,19 @@ class E2EPipeline(Pipeline):
             subsample=config.subsample,
             colsample_bytree=config.colsample_bytree)
 
-        model.fit(cp.array(X),
-                  cp.array(y),
+        if if_GPU:
+            X = cp.array(X)
+            y = cp.array(y)
+            X_test = cp.array(X_test)
+
+        model.fit(X,
+                  y,
                   verbose=True,
                   sample_weight=sample_weights)
         model.save_model(model_dir / "xgboost.json")
 
         # predict on test set
-        prob = model.predict_proba(cp.array(X_test))[:, 1]
+        prob = model.predict_proba(X_test)[:, 1]
         preds = (prob > config.best_threshold).astype("int")
 
         return f1_score(y_test, preds)
@@ -450,5 +458,5 @@ if __name__ == "__main__":
 
     pipe = E2EPipeline()
     data = pipe.preprocess(df_raw)
-    f1 = pipe.train(data)
+    f1 = pipe.train(data, if_GPU=True)
     logger.info(f1)

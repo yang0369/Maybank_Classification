@@ -2,7 +2,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).parents[2]
 
-SEED = 1
+SEED = 10
+
+# default value for device
+if_GPU = False
 
 # processing variables
 counts = [
@@ -79,7 +82,7 @@ objective = 'binary:logistic'
 booster = "gbtree"
 eval_metric = "logloss"
 
-best_threshold = 0.281
+best_threshold = 0.226
 model_dir = ROOT / "model"
 
 # for neural network
