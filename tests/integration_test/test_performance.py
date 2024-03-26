@@ -31,6 +31,8 @@
 #     assert f1 >= 0.9
 
 def test_dummy():
-    """create this dummy test case to run CICD because I cannot upload data and model to GitHub Repo
+    """
+    create this dummy test case to run CICD because
+    I cannot upload data and model to GitHub Repo
     """
     assert 1 > 0

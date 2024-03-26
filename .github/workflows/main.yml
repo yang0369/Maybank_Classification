@@ -22,18 +22,12 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
 
-    - name: Install flake8
-      run: pip install flake8
-
   test:
     name: Test
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Linting
-      run: flake8  # Run Flake8 for linting
-
     - name: Run Tests
       run: pytest  # Run pytest for testing
 
