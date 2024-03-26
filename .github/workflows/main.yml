@@ -17,13 +17,13 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.8.18'
+        python-version: '3.8.18'  # Replace with your desired Python version
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
 
     - name: Install flake8
       run: pip install flake8
-
-    - name: Install Dependencies
-      run: pip install -r requirements.txt
 
   test:
     name: Test
@@ -31,27 +31,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Lint
-      run: |
-        python3.8 -m flake8 --select=E20,E21,E22,E23,E24,E3,F401,F8 --ignore=E226
+    - name: Linting
+      run: flake8  # Run Flake8 for linting
 
     - name: Run Tests
-      run: pytest
+      run: pytest  # Run pytest for testing
 
-  package:
-    name: Package
+  staging:
+    name: Staging
     needs: test
     runs-on: ubuntu-latest
 
     steps:
-    - name: Package Application
-      run: echo "Packaging application..."
+    - name: Staging Deployment
+      run: echo "Deploying to staging environment..."  # Placeholder for actual deployment code
 
   deploy:
     name: Deploy
-    needs: package
+    needs: staging
     runs-on: ubuntu-latest
 
     steps:
-    - name: Package Application
-      run: echo "Deploying application..."
+    - name: Production Deployment
+      run: echo "Deploying to production environment..."  # Placeholder for actual deployment code
