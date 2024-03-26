@@ -21,11 +21,12 @@ jobs:
 
     - name: Install dependencies
       run: pip install -r requirements.txt
+      run: pip install flake8
+
+    - name: Run Flake8 Check
+      run: |
+        flake8 --select=E20,E21,E22,E23,E24,E3,F401,F8
 
     - name: Run Tests
       run: |
-        # Replace the following command with your actual command to run tests
-        # For example, if you're using pytest:
-        # pytest
-        # Or if you're using Django:
-        # python manage.py test
+        pytest
