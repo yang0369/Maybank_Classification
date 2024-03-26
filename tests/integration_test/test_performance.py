@@ -8,7 +8,7 @@ from src.config import config
 from src.E2EPipeline import E2EPipeline
 from src.util.logger import CustomLogger
 
-ROOT = Path(__file__).parents[1]
+ROOT = Path(__file__).parents[2]
 logger = CustomLogger()
 
 

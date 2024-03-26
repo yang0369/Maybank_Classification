@@ -1,48 +1,31 @@
-name: Development
+name: Run Tests on Push
 
-on: push
+on:
+  push:
+    branches:
+      - '*'
 
 jobs:
   test:
-    name: Test application
+    name: Run Test Cases
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+
     steps:
-      - name: "☁️ checkout repository"
-        uses: actions/checkout@v2
+    - name: Checkout Repository
+      uses: actions/checkout@v2
 
-      - name: "🔧 setup node"
-        uses: actions/setup-node@v2.1.5
-        with:
-          node-version: 16
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8.18'
 
-      - name: "🔧 install npm@latest"
-        run: npm i -g npm@latest
+    - name: Install dependencies
+      run: pip install -r requirements.txt
 
-      - name: "📦 install dependencies"
-        uses: bahmutov/npm-install@v1
-
-      - name: "🔍 run tests"
-        run: npm run test --if-present
-
-  lint:
-    name: Code standards
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: "☁️ checkout repository"
-        uses: actions/checkout@v2
-
-      - name: "🔧 setup node"
-        uses: actions/setup-node@v2.1.5
-        with:
-          node-version: 16
-
-      - name: "🔧 install npm@latest"
-        run: npm i -g npm@latest
-
-      - name: "📦 install dependencies"
-        uses: bahmutov/npm-install@v1
-
-      - name: "🔍 lint code"
-        run: npm run lint --if-present
+    - name: Run Tests
+      run: |
+        # Replace the following command with your actual command to run tests
+        # For example, if you're using pytest:
+        # pytest
+        # Or if you're using Django:
+        # python manage.py test

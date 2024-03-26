@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Union
 
-import cupy as cp
 import featuretools as ft
 import numpy as np
 import pandas as pd
@@ -17,6 +16,9 @@ from sklearn.utils.class_weight import compute_sample_weight
 
 from src.config import config
 from src.util.logger import CustomLogger
+
+if config.if_GPU:
+    import cupy as cp
 
 # show all columns/rows
 pd.options.display.max_rows = 10
