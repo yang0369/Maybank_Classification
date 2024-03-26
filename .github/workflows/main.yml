@@ -42,16 +42,10 @@ jobs:
   package:
     needs: test
     - name: Package Application
-      run: |
-        # Add commands to package your application (e.g., create distributable archive)
+      run: echo "Packaging application..."
+
 
   deploy:
     needs: package
-    - name: Set up SSH for Deployment
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: Deploy Application
-      run: |
-        # Add commands to deploy your application (e.g., copy files to server, restart services)
+    - name: Package Application
+      run: echo "Deploying application..."
