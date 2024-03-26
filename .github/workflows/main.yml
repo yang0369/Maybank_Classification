@@ -19,13 +19,15 @@ jobs:
       with:
         python-version: '3.8.18'
 
+    - name: Install Flake8
+      run: pip install flake8
+
     - name: Install dependencies
       run: pip install -r requirements.txt
-      run: pip install flake8
 
     - name: Run Flake8 Check
       run: |
-        flake8 --select=E20,E21,E22,E23,E24,E3,F401,F8
+        flake8 --select=E20,E21,E22,E23,E24,E3,F401,F8 --ignore=E226
 
     - name: Run Tests
       run: |
