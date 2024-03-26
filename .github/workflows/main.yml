@@ -40,12 +40,19 @@ jobs:
         pytest
 
   package:
+    name: Package
     needs: test
+    runs-on: ubuntu-latest
+
+    steps:
     - name: Package Application
       run: echo "Packaging application..."
 
-
   deploy:
+    name: Deploy
     needs: package
+    runs-on: ubuntu-latest
+
+    steps:
     - name: Package Application
       run: echo "Deploying application..."
