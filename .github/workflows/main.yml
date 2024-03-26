@@ -33,11 +33,10 @@ jobs:
     steps:
     - name: Lint
       run: |
-        flake8 --select=E20,E21,E22,E23,E24,E3,F401,F8 --ignore=E226
+        python3.8.18 -m flake8 --select=E20,E21,E22,E23,E24,E3,F401,F8 --ignore=E226
 
     - name: Run Tests
-      run: |
-        pytest
+      run: pytest
 
   package:
     name: Package
