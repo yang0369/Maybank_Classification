@@ -1,13 +1,13 @@
-name: Run Tests on Push
+name: CI/CD Workflow
 
 on:
   push:
     branches:
-      - '*'
+      - main
 
 jobs:
-  test:
-    name: Run Test Cases
+  build:
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
@@ -19,16 +19,39 @@ jobs:
       with:
         python-version: '3.8.18'
 
-    - name: Install Flake8
+    - name: Install flake8
       run: pip install flake8
 
-    - name: Install dependencies
+    - name: Install Dependencies
       run: pip install -r requirements.txt
 
-    - name: Run Flake8 Check
+  test:
+    name: Test
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Lint
       run: |
         flake8 --select=E20,E21,E22,E23,E24,E3,F401,F8 --ignore=E226
 
     - name: Run Tests
       run: |
         pytest
+
+  package:
+    needs: test
+    - name: Package Application
+      run: |
+        # Add commands to package your application (e.g., create distributable archive)
+
+  deploy:
+    needs: package
+    - name: Set up SSH for Deployment
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy Application
+      run: |
+        # Add commands to deploy your application (e.g., copy files to server, restart services)
