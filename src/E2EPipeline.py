@@ -119,8 +119,6 @@ class E2EPipeline(Pipeline):
         data = pd.concat([data, df_stand], axis=1)
         logger.info(f"1. before fe: {data.shape}")
 
-        # TODO: featuretool seems create different No. of features
-        # according to input data size
         # feature engineering 1
         es = ft.EntitySet(id='ft')
         fe_col = [col for col in self.values + [self.index_col]
@@ -172,6 +170,9 @@ class E2EPipeline(Pipeline):
 
         # impute extreme values
         data.replace([np.inf, -np.inf], np.nan, inplace=True)
+        data[config.target_name].replace(
+            {"AFFLUENT": 1, "NORMAL": 0},
+            inplace=True)
 
         return data
 
