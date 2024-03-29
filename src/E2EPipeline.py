@@ -168,9 +168,9 @@ class E2EPipeline(Pipeline):
 
         # impute extreme values
         data.replace([np.inf, -np.inf], np.nan, inplace=True)
-        data[config.target_name].replace(
-            {"AFFLUENT": 1, "NORMAL": 0},
-            inplace=True)
+        # data[config.target_name].replace(
+        #     {"AFFLUENT": 1, "NORMAL": 0},
+        #     inplace=True)
         return data
 
     def train(self,
@@ -340,7 +340,7 @@ class E2EPipeline(Pipeline):
         prob = model.predict_proba(X_test)[:, 1]
         preds = (prob > config.best_threshold).astype("int")
 
-        return f1_score(y_test, preds)
+        return f1_score(y_test.values.ravel(), preds)
 
     # as onehot add extra nan column, so we need to remove it
     @staticmethod
@@ -458,5 +458,5 @@ if __name__ == "__main__":
 
     pipe = E2EPipeline()
     data = pipe.preprocess(df_raw)
-    f1 = pipe.train(data, if_GPU=True)
+    f1 = pipe.train(data)
     logger.info(f1)
