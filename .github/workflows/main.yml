@@ -1,0 +1,50 @@
+name: CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8.18'  # Replace with your desired Python version
+
+    - name: Install dependencies
+      run: echo "pip install -r requirements.txt"
+
+  test:
+    name: Test
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Run Tests
+      run: echo "run pytest"  # Run pytest for testing
+
+  staging:
+    name: Staging
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Staging Deployment
+      run: echo "Deploying to staging environment..."  # Placeholder for actual deployment code
+
+  deploy:
+    name: Deploy
+    needs: staging
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Production Deployment
+      run: echo "Deploying to production environment..."  # Placeholder for actual deployment code
